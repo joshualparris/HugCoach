@@ -1061,7 +1061,7 @@ The app should provide links/resources for:
 
 
 ```
-joshcoach/
+hugcoach/
 ├── app/                    # Next.js App Router
 │   ├── (dashboard)/       # Groupe
 

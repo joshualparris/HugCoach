@@ -11,6 +11,10 @@ Local-first learning loops for relationship growth, built with Next.js, Prisma, 
 cp .env.example .env
 ```
 
+Set:
+- `POSTGRES_PRISMA_URL`
+- `POSTGRES_URL_NON_POOLING`
+
 3. Install dependencies and run migrations:
 
 ```bash
@@ -26,19 +30,19 @@ npx prisma db seed
 npm run dev
 ```
 
-## Deploy to Vercel (Persistent)
+## Deploy to Vercel (Easiest)
 
 1. Push this repo to GitHub.
 2. In Vercel, create a new project from the repo.
-3. Add a **Vercel Postgres** database from the Storage tab.
-4. Set environment variables in Vercel:
-   - `DATABASE_URL` = `POSTGRES_PRISMA_URL`
-   - `DIRECT_URL` = `POSTGRES_URL_NON_POOLING`
-5. Deploy. The build runs `prisma migrate deploy` automatically.
-6. Seed the database once (run locally using the Vercel DB URL):
+3. In Vercel, open **Storage** and create a **Postgres** database, then attach it to the project.
+   - This auto-injects `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING`.
+4. Redeploy. The build runs `prisma migrate deploy` automatically.
+5. Seed the database once (run locally using the Vercel DB URLs):
 
 ```bash
-DATABASE_URL="your_vercel_postgres_prisma_url" DIRECT_URL="your_vercel_postgres_non_pooling_url" npx prisma db seed
+POSTGRES_PRISMA_URL="your_vercel_postgres_prisma_url" \
+POSTGRES_URL_NON_POOLING="your_vercel_postgres_non_pooling_url" \
+  npx prisma db seed
 ```
 
 ## Useful Commands
