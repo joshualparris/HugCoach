@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  order       Int      @default(0)
+  minLevel    Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons     Lesson[]
+
+  @@index([order])
+}
+
+model Lesson {
+  id                 String   @id @default(cuid())
+  topicId            String
+  title              String
+  slug               String   @unique
+  content            String
+  estimatedMinutes   Int      @default(10)
+  order              Int      @default(0)
+  minLevel           Int      @default(1)
+  learningObjectives String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  topic        Topic         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  quizAttempts QuizAttempt[]
+
+  @@index([topicId])
+  @@index([order])
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  lessonId      String
+  type          String
+  question      String
+  options       String?
+  correctAnswer String
+  explanation   String
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  lesson      Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  attempts    QuestionAttempt[]
+  reviewItems ReviewItem[]
+
+  @@index([lessonId])
+  @@index([order])
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  lessonId  String
+  score     Int
+  total     Int
+  timeSpent Int?
+  createdAt DateTime @default(now())
+
+  lesson           Lesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questionAttempts QuestionAttempt[]
+
+  @@index([lessonId])
+  @@index([createdAt])
+}
+
+model QuestionAttempt {
+  id            String   @id @default(cuid())
+  quizAttemptId String
+  questionId    String
+  answer        String
+  correct       Boolean
+  quality       Int
+  createdAt     DateTime @default(now())
+
+  quizAttempt QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([quizAttemptId])
+  @@index([questionId])
+}
+
+model ReviewItem {
+  id             String    @id @default(cuid())
+  questionId     String    @unique
+  easinessFactor Float     @default(2.5)
+  intervalDays   Int       @default(0)
+  repetitions    Int       @default(0)
+  dueAt          DateTime  @default(now())
+  lastReviewedAt DateTime?
+  lapseCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([dueAt])
+  @@index([questionId])
+}
+
+model Ritual {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  logs RitualLog[]
+
+  @@index([type])
+  @@index([order])
+}
+
+model RitualLog {
+  id        String   @id @default(cuid())
+  ritualId  String
+  date      String
+  notes     String?
+  shared    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  ritual Ritual @relation(fields: [ritualId], references: [id], onDelete: Cascade)
+
+  @@unique([ritualId, date])
+  @@index([date])
+}
+
+model Reflection {
+  id        String   @id @default(cuid())
+  type      String
+  content   String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  date      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model User {
+  id                 String             @id @default(cuid())
+  currentXP          Int                @default(0)
+  level              Int                @default(1)
+  currency           Int                @default(0)
+  streakFreezes      Int                @default(0)
+  ownedThemes        String             @default("[]")
+  spicyDiceUnlocked  Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  achievements       UserAchievement[]
+}
+
+model Achievement {
+  id          String             @id @default(cuid())
+  slug        String             @unique
+  name        String
+  description String
+  icon        String
+  condition   String
+  createdAt   DateTime           @default(now())
+
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([earnedAt])
+}
