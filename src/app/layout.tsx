@@ -21,7 +21,7 @@ export default function RootLayout({
           <main className="mx-auto w-full max-w-5xl px-4 py-8">{children}</main>
         </ThemeProvider>
         <script
-          src="https://cdn.jsdelivr.net/gh/joshualparris/JoshHub@35c4348b4adfbc1c64bad8a3d3e31ede008a4441/public/podcast-dock.js"
+          src="https://cdn.jsdelivr.net/gh/joshualparris/JoshHub@7b6ec3907b27924dbe1d64c9ece4e439e6de8de7/public/podcast-dock.js"
           data-topics="relationships"
           data-label="🎧 Listen to a different relationship-growth podcast"
           defer
